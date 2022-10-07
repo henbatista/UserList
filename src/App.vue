@@ -1,11 +1,50 @@
 <template>
-  <h1>Hello Wordhhhghk</h1>
+  <div class="users">
+    <div class="container">
+      <section>
+        <h5 class="title">Lista de usuários</h5>
+        <ul>
+          <li v-for="user in users" :key="user.id">
+            <p>{{ user.name }}</p>
+            <small>{{ user.email }}</small>
+            <a class="destroy"></a>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import axios from '@/utils/axios'
+interface User {
+  id: string
+  email: string
+  name: string
+}
 
-export default defineComponent({})
+export default defineComponent({
+  data() {
+    return {
+      users: [] as User[],
+    }
+  },
+  //hook
+  created() {
+    this.fetchUsers()
+  },
+  methods: {
+    async fetchUsers() {
+      try {
+        const { data } = await axios.get('/users')
+        this.users = data
+      } catch (error) {
+        console.warn(error)
+      }
+    },
+  },
+})
 </script>
 
 <style scoped>
