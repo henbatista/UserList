@@ -2,12 +2,20 @@
   <div class="users">
     <div class="container">
       <section>
+        <h5 class="title">Novo Usuário</h5>
+        <form @submit.prevent="createUser">
+          <input type="text" placeholder="Nome" v-model="form.name" />
+          <input type="text" placeholder="E-mail" v-model="form.email" />
+          <button type="submit">Adicionar</button>
+        </form>
+      </section>
+      <section>
         <h5 class="title">Lista de usuários</h5>
         <ul>
           <li v-for="user in users" :key="user.id">
             <p>{{ user.name }}</p>
             <small>{{ user.email }}</small>
-            <a class="destroy"></a>
+            <a class="destroy" @click="destroyUser(user.id)"></a>
           </li>
         </ul>
       </section>
@@ -18,6 +26,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import axios from '@/utils/axios'
+
 interface User {
   id: string
   email: string
@@ -28,6 +37,10 @@ export default defineComponent({
   data() {
     return {
       users: [] as User[],
+      form: {
+        name: '',
+        email: '',
+      },
     }
   },
   //hook
@@ -39,6 +52,27 @@ export default defineComponent({
       try {
         const { data } = await axios.get('/users')
         this.users = data
+      } catch (error) {
+        console.warn(error)
+      }
+    },
+    async createUser() {
+      try {
+        const { data } = await axios.post('/users', this.form)
+
+        this.users.push = data
+        this.form.name = ''
+        this.form.email = ''
+      } catch (error) {
+        console.warn(error)
+      }
+    },
+    async destroyUser(id: string) {
+      try {
+        await axios.delete(`/users/${id}`)
+
+        const userIndex = this.users.findIndex((user) => user.id === id)
+        this.users.slice(userIndex, 1)
       } catch (error) {
         console.warn(error)
       }
